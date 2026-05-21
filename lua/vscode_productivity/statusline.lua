@@ -101,7 +101,7 @@ local function default_left_entries(icons, actions)
     {
       name = "recent_files",
       label = "Recent Files",
-      icon = icons.recent_files or "",
+      icon = icons.recent_files or "󰑩",
       shortcuts = { "<Leader>fr" },
       command = "VSCodeRecent",
       callback = actions.recent_files,
@@ -109,7 +109,7 @@ local function default_left_entries(icons, actions)
     {
       name = "search_project",
       label = "Search in Files",
-      icon = icons.search_project or "󰱼",
+      icon = icons.search_project or "",
       shortcuts = { "<Leader>/", "<Leader>sg" },
       command = "VSCodeSearch",
       callback = actions.search_project,
@@ -133,7 +133,7 @@ local function default_left_entries(icons, actions)
     {
       name = "command_palette",
       label = "Command Palette",
-      icon = icons.command_palette or "󰆍",
+      icon = icons.command_palette or "",
       shortcuts = { "<Leader>sp", "<Leader>a" },
       command = "VSCodeCommandPalette",
       callback = actions.command_palette,
@@ -150,7 +150,7 @@ local function default_left_entries(icons, actions)
     {
       name = "git_file_history",
       label = "File History",
-      icon = icons.git_file_history or "󰋚",
+      icon = icons.git_file_history or "󰋘",
       shortcuts = { "<Leader>gf" },
       command = "VSCodeFileHistory",
       callback = actions.git_file_history,
@@ -169,7 +169,7 @@ local function default_left_entries(icons, actions)
     {
       name = "terminal",
       label = "Terminal",
-      icon = icons.terminal or "",
+      icon = icons.terminal or "",
       shortcuts = { "<C-`>" },
       command = "VSCodeTerminal",
       callback = actions.toggle_terminal,
@@ -208,7 +208,7 @@ local function default_right_entries(icons, actions)
     {
       name = "notifications",
       label = "Notifications",
-      icon = icons.notifications or "󰛌",
+      icon = icons.notifications or "",
       shortcuts = { "<Leader>n" },
       command = "VSCodeNotifications",
       callback = actions.notifications,
