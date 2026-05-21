@@ -271,7 +271,7 @@ local function default_right_entries(icons, actions)
     {
       name = "debug",
       label = "Debug",
-      icon = icons.debug or "",
+      icon = icons.debug or "",
       shortcuts = { "<Leader>du" },
       callback = function()
         local ok, dap = pcall(require, "dap")
