@@ -76,7 +76,7 @@ local default_panels = {
       for _, win in ipairs(vim.api.nvim_list_wins()) do
         local buf = vim.api.nvim_win_get_buf(win)
         if vim.bo[buf].filetype == "toggleterm"
-          and vim.b[buf].toggleterm_id == 2 then
+          and vim.b[buf].toggle_number == 2 then
           return true
         end
       end
@@ -93,7 +93,7 @@ local default_panels = {
       for _, win in ipairs(vim.api.nvim_list_wins()) do
         local buf = vim.api.nvim_win_get_buf(win)
         if vim.bo[buf].filetype == "toggleterm"
-          and vim.b[buf].toggleterm_id == 1 then
+          and vim.b[buf].toggle_number == 1 then
           return true
         end
       end
