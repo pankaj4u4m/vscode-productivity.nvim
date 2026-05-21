@@ -2,18 +2,17 @@
   <img src="https://img.shields.io/github/stars/pankaj4u4m/vscode-productivity.nvim?style=flat-square&color=61afef" alt="Stars">
   <img src="https://img.shields.io/github/license/pankaj4u4m/vscode-productivity.nvim?style=flat-square&color=98c379" alt="License">
   <img src="https://img.shields.io/badge/neovim-0.10+-blue?style=flat-square&logo=neovim" alt="Neovim">
-  <a href="https://github.com/pankaj4u4m/dotfiles">
-    <img src="https://img.shields.io/badge/dotfiles-reference-f5a97f?style=flat-square" alt="Dotfiles">
-  </a>
 </p>
 
 # vscode-productivity.nvim
 
-> VS Code-style workflows for Neovim — quick open, project search, LSP navigation, terminal management, task running, AI agents, and clickable statusline icons.
+> VS Code-style workflows **for Neovim** — quick open, project search, LSP navigation, terminal management, task running, AI agents, and clickable statusline icons.
 
 [![GitHub](https://img.shields.io/badge/github-pankaj4u4m/vscode--productivity.nvim-61afef?style=flat-square&logo=github)](https://github.com/pankaj4u4m/vscode-productivity.nvim)
 
-A **Neovim** compatibility layer that detects and dispatches to existing community plugins — it only owns the glue. Works with **[LazyVim](https://github.com/LazyVim/LazyVim)**, **[AstroNvim](https://github.com/AstroNvim/AstroNvim)**, **[NvChad](https://github.com/NvChad/NvChad)**, or your own config from scratch.
+**A Neovim plugin** that brings VS Code-style productivity actions to your editor. It detects and dispatches to existing community plugins — it only owns the glue. Works with **[LazyVim](https://github.com/LazyVim/LazyVim)**, **[AstroNvim](https://github.com/AstroNvim/AstroNvim)**, **[NvChad](https://github.com/NvChad/NvChad)**, or your own config from scratch.
+
+> 💡 **Not a VS Code extension.** This is a Neovim plugin that mimics VS Code's workflow patterns — quick open (Ctrl+P), command palette, file explorer, problems panel, integrated terminal, and more.
 
 ---
 
@@ -445,8 +444,7 @@ vscode-productivity.nvim/
 
 ## Related
 
-- [dotfiles](https://github.com/pankaj4u4m/dotfiles) — reference AstroNvim config using this plugin
-- [AstroNvim](https://github.com/AstroNvim/AstroNvim) — the framework that inspired the integration patterns
+- [AstroNvim](https://github.com/AstroNvim/AstroNvim) — framework used in the integration examples
 - [LazyVim](https://github.com/LazyVim/LazyVim) — another popular Neovim framework
 
 ## License
