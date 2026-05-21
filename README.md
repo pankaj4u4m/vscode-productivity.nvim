@@ -1,48 +1,57 @@
 # vscode-productivity.nvim
 
-A Neovim compatibility layer for VS Code-style workflows. Provides quick open, project search, LSP navigation, terminal management, task running, AI agent launcher, and a VS Code-inspired clickable statusline — all backed by the community plugins you already use.
+A **Neovim** compatibility layer for VS Code-style workflows. Provides quick open, project search, LSP navigation, terminal management, task running, AI agent launcher, and a clickable VS Code-inspired statusline — all backed by the community plugins you already use.
 
-It **detects and dispatches** to existing plugins for the heavy lifting and only owns the glue:
-- Picker → snacks.nvim / telescope.nvim / fzf-lua
-- Explorer → neo-tree.nvim or custom callback
-- Search/replace → grug-far.nvim
-- Problems → trouble.nvim or location list
-- Outline → aerial.nvim or trouble.nvim
-- Terminal → toggleterm.nvim or custom callback
-- Tasks → overseer.nvim or custom callback
-- Statusline → Heirline (AstroNvim or standalone)
+> **Works with any Neovim setup** — LazyVim, AstroNvim, NvChad, or your own from scratch.
+> The only framework-specific part is the optional statusline module, which requires Heirline.
 
 ---
 
-## ✨ Features
+## What's included
+
+| Module | File | Requires |
+|---|---|---|
+| **Productivity actions** (core) | `lua/vscode_productivity/init.lua` | Nothing — detects backend plugins at runtime |
+| **Usage tracking** | `lua/vscode_productivity/usage.lua` | Nothing — bundled with the core |
+| **Statusline icons** (optional) | `lua/vscode_productivity/statusline.lua` | `rebelot/heirline.nvim` |
+
+### Statusline: AstroNvim vs standalone
+
+The statusline module works with **any Heirline-based statusline**, not just AstroNvim. It merges VS Code button icons into whatever statusline you already have (AstroNvim's default, your custom one, etc.).
+
+- **AstroNvim users**: just call `.overrides()` — it automatically preserves AstroNvim's existing components.
+- **Standalone Heirline users**: same API, just pass in your own base statusline.
+
+---
+
+## Features
 
 - **VS Code productivity actions**: quick open, command palette, search, replace, git, tasks, etc.
-- **AI agent terminal**: pick and launch any CLI agent (Claude, Copilot, Codex, Kilo, Aider, Cline, OpenCode, etc.)
-- **Clickable statusline icons** (optional): add VS Code-style buttons to your Heirline statusline
+- **AI agent terminal**: pick and launch any CLI agent (Claude, Copilot, Codex, Kilo, Aider, Cline, OpenCode, Agy, etc.)
+- **Clickable statusline icons** (optional Heirline module)
 - **Usage tracking**: tracks your most-used actions with a frequency-sorted picker
 - **Dock help**: discover all registered icons and their shortcuts via a picker
-- **Lazy, zero-dependency core**: detects what plugins are installed and dispatches accordingly
-- **All backends are optional**: bring your own picker, explorer, terminal, etc.
+- **All backends are optional**: automatically detects and uses snacks.nvim / telescope.nvim / fzf-lua / neo-tree.nvim / trouble.nvim / overseer.nvim / toggleterm.nvim / aerial.nvim at runtime
 
 ---
 
-## 📦 Installation
+## Installation
 
-### lazy.nvim
+### With lazy.nvim (any framework)
 
 ```lua
 {
   "pankaj4u4m/vscode-productivity.nvim",
   lazy = false,
   dependencies = {
-    "folke/snacks.nvim",           -- optional, for pickers
-    "nvim-neo-tree/neo-tree.nvim", -- optional, for explorer
-    "folke/trouble.nvim",          -- optional, for problems/outline
-    "MagicDuck/grug-far.nvim",     -- optional, for search/replace
-    "stevearc/overseer.nvim",      -- optional, for tasks
+    -- All optional — only install what you use
+    "folke/snacks.nvim",           -- pickers, git status, notifications
+    "nvim-neo-tree/neo-tree.nvim", -- file explorer
+    "folke/trouble.nvim",          -- problems / quickfix / outline
+    "MagicDuck/grug-far.nvim",     -- search and replace
+    "stevearc/overseer.nvim",      -- task runner
   },
   opts = {
-    -- Integration callbacks (optional)
     integrations = {
       -- explorer = function() ... end,
       -- terminal = function() ... end,
@@ -57,95 +66,70 @@ It **detects and dispatches** to existing plugins for the heavy lifting and only
 }
 ```
 
-### With statusline icons (AstroNvim)
+### With statusline icons (Heirline — works with AstroNvim, LazyVim, or standalone)
+
+Add the VS Code-style statusline buttons to your Heirline:
 
 ```lua
--- Add the clickable VS Code statusline icons to your Heirline
 {
   "rebelot/heirline.nvim",
+  dependencies = { "pankaj4u4m/vscode-productivity.nvim" },
   opts = require("vscode_productivity.statusline").overrides(),
-  dependencies = {
-    "pankaj4u4m/vscode-productivity.nvim",
-  },
 }
 ```
 
-### With statusline icons (standalone Heirline)
-
-```lua
-{
-  "rebelot/heirline.nvim",
-  opts = function(_, opts)
-    opts = require("vscode_productivity.statusline").overrides({})(_, opts)
-    -- Customize your own statusline components here
-    return opts
-  end,
-  dependencies = {
-    "pankaj4u4m/vscode-productivity.nvim",
-  },
-}
-```
+That's it. Whether you use AstroNvim, LazyVim's Heirline, or your own setup, calling `.overrides()` injects the VS Code buttons while preserving your existing statusline components.
 
 ### Via git submodule (for dotfiles)
 
 ```bash
-# Add to your dotfiles repo
 git submodule add https://github.com/pankaj4u4m/vscode-productivity.nvim \
   .config/nvim/packages/vscode-productivity.nvim
-
-# Initialize and clone
 git submodule update --init --recursive
 ```
-
-Then in your lazy.nvim config:
 
 ```lua
 {
   dir = vim.fn.stdpath("config") .. "/packages/vscode-productivity.nvim",
   name = "vscode-productivity.nvim",
   lazy = false,
-  dependencies = { "folke/snacks.nvim", "nvim-neo-tree/neo-tree.nvim", ... },
-  opts = { ... },
+  dependencies = {
+    "folke/snacks.nvim",
+    "nvim-neo-tree/neo-tree.nvim",
+    "folke/trouble.nvim",
+    "MagicDuck/grug-far.nvim",
+    "stevearc/overseer.nvim",
+  },
+  opts = { integrations = { ... } },
   config = function(_, opts)
     require("vscode_productivity").setup(opts)
   end,
 }
 ```
 
-### AstroNvim community recipe
-
-You can also add it as an AstroNvim community recipe import. See [astrocommunity](https://github.com/AstroNvim/astrocommunity).
-
 ---
 
-## ⚙️ Configuration
+## Configuration
 
-The `setup()` function accepts an optional table:
+### Core plugin (`setup()`)
 
 ```lua
 require("vscode_productivity").setup({
-  -- Enable VS Code-style keymaps (C-p, C-b, C-`, F2, F12, etc.)
+  -- VS Code-style keymaps (<C-p>, <C-b>, <C-`>, <F2>, <F12>, etc.)
   enable_vscode_keymaps = true,
 
-  -- Custom integration callbacks (override automatic detection)
+  -- Custom integration callbacks (override automatic backend detection)
   integrations = {
-    -- Explorer: function to toggle file explorer
-    explorer = nil,
-    -- Terminal: function to toggle terminal
-    terminal = nil,
-    -- Problems: function to toggle diagnostics panel
-    problems = nil,
-    -- Outline: function to toggle symbol outline
-    outline = nil,
-    -- Tasks: function to toggle task list
-    tasks = nil,
-    -- Agent terminal: function to launch AI agent
-    agent_terminal = nil,
+    explorer = nil,      -- function() … end
+    terminal = nil,      -- function() … end
+    problems = nil,      -- function() … end
+    outline = nil,       -- function() … end
+    tasks = nil,         -- function() … end
+    agent_terminal = nil, -- function() … end
   },
 
-  -- Usage tracking configuration
+  -- Usage tracking
   usage = {
-    -- File path for usage state JSON
     state_file = function()
       return vim.fn.stdpath("state") .. "/vscode-productivity/usage.json"
     end,
@@ -153,9 +137,10 @@ require("vscode_productivity").setup({
 })
 ```
 
-### Statusline icon overrides
+### Statusline (`overrides()`)
 
 ```lua
+-- Custom icon overrides
 require("vscode_productivity.statusline").overrides({
   icons = {
     explorer = "󰙅",
@@ -163,14 +148,10 @@ require("vscode_productivity.statusline").overrides({
     terminal = "",
     tasks = "󱂬",
     debug = "",
-    -- ... all entries have customizable icons
   },
 })
-```
 
-### Custom statusline entries
-
-```lua
+-- Custom button entries (replaces defaults)
 require("vscode_productivity.statusline").overrides({
   left_entries = {
     {
@@ -181,15 +162,133 @@ require("vscode_productivity.statusline").overrides({
       is_active = function() return false end,
     },
   },
-  right_entries = {
-    -- ... or pass nil to use defaults
-  },
+  right_entries = nil, -- passes nil = keep defaults
 })
 ```
 
 ---
 
-## 🎮 Commands
+## AstroNvim integration example
+
+This plugin works out of the box with AstroNvim. Here's a reference config showing how to wire everything together:
+
+### `lua/plugins/vscode-productivity.lua`
+
+```lua
+return {
+  {
+    dir = vim.fn.stdpath("config") .. "/packages/vscode-productivity.nvim",
+    name = "vscode-productivity.nvim",
+    lazy = false,
+    dependencies = {
+      "folke/snacks.nvim",
+      "nvim-neo-tree/neo-tree.nvim",
+      "folke/trouble.nvim",
+      "MagicDuck/grug-far.nvim",
+      "stevearc/overseer.nvim",
+    },
+    opts = {
+      integrations = {
+        explorer = function()
+          require("neo-tree.command").execute({ toggle = true, source = "filesystem", position = "left" })
+        end,
+        terminal = function()
+          _G.toggle_term_edge(1, 25, "horizontal")
+        end,
+        problems = function()
+          if vim.fn.exists(":Trouble") == 2 then
+            vim.cmd("Trouble diagnostics toggle")
+          else
+            vim.diagnostic.setloclist()
+            vim.cmd("lopen")
+          end
+        end,
+        tasks = function()
+          vim.cmd("OverseerToggle!")
+        end,
+        agent_terminal = function()
+          -- see plugin config in dotfiles for full agent list
+          vim.cmd("VSCodeAgentTerminal")
+        end,
+      },
+    },
+    config = function(_, opts)
+      require("vscode_productivity").setup(opts)
+    end,
+  },
+}
+```
+
+### `lua/plugins/vscode-statusline.lua`
+
+```lua
+return {
+  "rebelot/heirline.nvim",
+  opts = require("vscode_productivity.statusline").overrides(),
+  dependencies = { "vscode-productivity.nvim" },
+}
+```
+
+### `lua/polish.lua` (AstroNvim's post-plugin hook)
+
+This lives in **your own config**, not in the plugin. It's the glue that makes the VS Code panels work well with AstroNvim:
+
+```lua
+-- Panel state persistence — saves which VS Code panels are open on exit,
+-- restores them on next start. Uses a JSON file alongside resession sessions.
+local state_file = vim.fn.stdpath("state") .. "/vscode_panels.json"
+
+-- Helper: open a toggleterm in a specific position
+function _G.toggle_term_edge(id, size, direction)
+  require("toggleterm").toggle(id, size, nil, direction)
+end
+
+-- Save panel state on exit
+vim.api.nvim_create_autocmd("VimLeavePre", {
+  group = vim.api.nvim_create_augroup("VSCodePanelSave", { clear = true }),
+  callback = function()
+    local state = { explorer = false, problems = false,
+      terminal_right = false, outline = false, terminal = false }
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      local ft = vim.bo[vim.api.nvim_win_get_buf(win)].filetype
+      if ft == "neo-tree" then state.explorer = true end
+      if ft == "trouble" then state.problems = true end
+      if ft == "aerial" then state.outline = true end
+      if ft == "toggleterm" then
+        local id = vim.b[vim.api.nvim_win_get_buf(win)].toggleterm_id
+        if id == 2 then state.terminal_right = true
+        else state.terminal = true end
+      end
+    end
+    vim.fn.mkdir(vim.fn.fnamemodify(state_file, ":h"), "p")
+    vim.fn.writefile({ vim.json.encode(state) }, state_file)
+  end,
+})
+
+-- Restore panel state on start
+vim.api.nvim_create_autocmd("VimEnter", {
+  group = vim.api.nvim_create_augroup("VSCodePanelRestore", { clear = true }),
+  callback = function()
+    vim.schedule(function()
+      if vim.fn.filereadable(state_file) ~= 1 then return end
+      local ok, state = pcall(vim.json.decode, table.concat(
+        vim.fn.readfile(state_file), "\n"))
+      if not ok then return end
+      if state.explorer then vim.cmd("VSCodeExplorer") end
+      if state.terminal then vim.cmd("VSCodeTerminal") end
+      if state.problems then vim.cmd("VSCodeProblems") end
+      if state.outline then vim.cmd("VSCodeOutline") end
+      if state.terminal_right then
+        _G.toggle_term_edge(2, 80, "vertical")
+      end
+    end)
+  end,
+})
+```
+
+---
+
+## Commands
 
 | Command | Action |
 |---|---|
@@ -222,9 +321,9 @@ require("vscode_productivity.statusline").overrides({
 | `:VSCodeUsage` | Most used actions |
 | `:VSCodeDockHelp` | Dock icon help |
 
-## ⌨️ Keymaps
+## Keymaps
 
-### VS Code-style (optional, enabled by default)
+### VS Code-style (optional, enabled via `enable_vscode_keymaps = true`)
 
 | Keys | Action |
 |---|---|
@@ -239,7 +338,7 @@ require("vscode_productivity.statusline").overrides({
 | `<M-F12>` | Go to implementation |
 | `<C-LeftMouse>` | Go to definition |
 
-### Leader keymaps
+### Leader keymaps (always active)
 
 | Keys | Action |
 |---|---|
@@ -276,49 +375,28 @@ require("vscode_productivity.statusline").overrides({
 | `<leader>gf` | Git file history |
 | `<leader>gt` | Git status |
 
----
+## Backend detection
 
-## 🔌 Backend Support
+The plugin detects installed plugins at runtime and dispatches to the first available:
 
-### Picker
-Detects and uses the first available of:
-1. `snacks.nvim` (preferred)
-2. `telescope.nvim`
-3. `fzf-lua`
+| Feature | Priority |
+|---|---|
+| **Picker** | snacks.nvim → telescope.nvim → fzf-lua |
+| **Explorer** | custom callback → neo-tree.nvim → snacks.nvim |
+| **Terminal** | custom callback → toggleterm.nvim → snacks.nvim |
+| **Problems** | custom callback → trouble.nvim → location list |
+| **Outline** | custom callback → aerial.nvim → trouble.nvim |
+| **Tasks** | custom callback → overseer.nvim |
+| **Search/replace** | grug-far.nvim |
+| **Statusline** | Heirline (via optional statusline module) |
 
-### Explorer
-1. Custom callback via `integrations.explorer`
-2. `neo-tree.nvim`
-3. `snacks.nvim` explorer
-
-### Terminal
-1. Custom callback via `integrations.terminal`
-2. `toggleterm.nvim` (`:ToggleTerm`)
-3. `snacks.nvim` terminal
-
-### Problems
-1. Custom callback via `integrations.problems`
-2. `trouble.nvim` (`:Trouble diagnostics toggle`)
-3. Location list fallback (`vim.diagnostic.setloclist()` + `:lopen`)
-
-### Outline
-1. Custom callback via `integrations.outline`
-2. `aerial.nvim` (`:AerialToggle!`)
-3. `trouble.nvim` (`:Trouble symbols toggle`)
-
-### Tasks
-1. Custom callback via `integrations.tasks`
-2. `overseer.nvim` (`:OverseerToggle!`)
-
----
-
-## 📁 Structure
+## Structure
 
 ```
 vscode-productivity.nvim/
 ├── lua/
 │   └── vscode_productivity/
-│       ├── init.lua          # Main module: setup(), actions(), commands, keymaps
+│       ├── init.lua          # Core: setup(), actions(), commands, keymaps
 │       ├── usage.lua         # Usage tracking and most-used picker
 │       └── statusline.lua    # Heirline statusline icon overrides (optional)
 ├── plugin/
@@ -327,8 +405,6 @@ vscode-productivity.nvim/
 └── LICENSE
 ```
 
----
-
-## 📄 License
+## License
 
 MIT
