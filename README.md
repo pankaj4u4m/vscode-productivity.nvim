@@ -134,6 +134,12 @@ require("vscode_productivity").setup({
       return vim.fn.stdpath("state") .. "/vscode-productivity/usage.json"
     end,
   },
+
+  -- Panel state persistence (enabled by default)
+  -- Remembers which panels (explorer, problems, terminals, outline)
+  -- were open and restores them on next start — like VS Code.
+  -- Set to false to disable.
+  panel_persistence = true,
 })
 ```
 
@@ -229,64 +235,20 @@ return {
 }
 ```
 
-### `lua/polish.lua` (AstroNvim's post-plugin hook) — optional
+### `lua/polish.lua` (AstroNvim's post-plugin hook) — minimal
 
-> **You don't need this file for the statusline or plugin to work.**
-> The plugin and statusline are fully self-contained.
-> This is just extra quality-of-life — it saves which panels you had open and
-> restores them after restart (like VS Code's window state persistence).
-
-This lives in **your own config**, not in the plugin. The `toggle_term_edge()` helper it uses is already exported by the plugin.
+> **Panel state persistence is now built into the plugin (enabled by default).**
+> You don't need to define it in polish.lua anymore.
+> `polish.lua` only needs global UI tweaks and the `_G.toggle_term_edge` alias.
 
 ```lua
--- Panel state persistence — saves which VS Code panels are open on exit,
--- restores them on next start. Uses a JSON file alongside sessions.
-local state_file = vim.fn.stdpath("state") .. "/vscode_panels.json"
-local function open_toggle_terminal(id, size, direction)
-  require("toggleterm").toggle(id, size, nil, direction)
+vim.opt.laststatus = 3
+vim.opt.splitkeep = "screen"
+
+-- Global alias so toggleterm edge helper works from commands
+function _G.toggle_term_edge(...)
+  return require("vscode_productivity").toggle_term_edge(...)
 end
-
--- Save panel state on exit
-vim.api.nvim_create_autocmd("VimLeavePre", {
-  group = vim.api.nvim_create_augroup("VSCodePanelSave", { clear = true }),
-  callback = function()
-    local state = { explorer = false, problems = false,
-      terminal_right = false, outline = false, terminal = false }
-    for _, win in ipairs(vim.api.nvim_list_wins()) do
-      local ft = vim.bo[vim.api.nvim_win_get_buf(win)].filetype
-      if ft == "neo-tree" then state.explorer = true end
-      if ft == "trouble" then state.problems = true end
-      if ft == "aerial" then state.outline = true end
-      if ft == "toggleterm" then
-        local id = vim.b[vim.api.nvim_win_get_buf(win)].toggleterm_id
-        if id == 2 then state.terminal_right = true
-        else state.terminal = true end
-      end
-    end
-    vim.fn.mkdir(vim.fn.fnamemodify(state_file, ":h"), "p")
-    vim.fn.writefile({ vim.json.encode(state) }, state_file)
-  end,
-})
-
--- Restore panel state on start
-vim.api.nvim_create_autocmd("VimEnter", {
-  group = vim.api.nvim_create_augroup("VSCodePanelRestore", { clear = true }),
-  callback = function()
-    vim.schedule(function()
-      if vim.fn.filereadable(state_file) ~= 1 then return end
-      local ok, state = pcall(vim.json.decode, table.concat(
-        vim.fn.readfile(state_file), "\n"))
-      if not ok then return end
-      if state.explorer then vim.cmd("VSCodeExplorer") end
-      if state.terminal then vim.cmd("VSCodeTerminal") end
-      if state.problems then vim.cmd("VSCodeProblems") end
-      if state.outline then vim.cmd("VSCodeOutline") end
-      if state.terminal_right then
-        pcall(require("vscode_productivity").toggle_term_edge, 2, 80, "vertical")
-      end
-    end)
-  end,
-})
 ```
 
 ---
@@ -401,7 +363,8 @@ vscode-productivity.nvim/
 │   └── vscode_productivity/
 │       ├── init.lua          # Core: setup(), actions(), commands, keymaps
 │       ├── usage.lua         # Usage tracking and most-used picker
-│       └── statusline.lua    # Heirline statusline icon overrides (optional)
+│       ├── statusline.lua    # Heirline statusline icon overrides (optional)
+│       └── persistence.lua   # Panel state persistence (save/restore layout)
 ├── plugin/
 │   └── vscode-productivity.lua  # Auto-load: creates commands on startup
 ├── README.md

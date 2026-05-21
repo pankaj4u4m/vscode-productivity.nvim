@@ -11,6 +11,10 @@ local defaults = {
     tasks = nil,
     agent_terminal = nil,
   },
+  --- Panel state persistence: remembers which panels are open across restarts.
+  --- Set to false to disable, or a table with custom options.
+  ---@type boolean|table
+  panel_persistence = true,
 }
 
 local config = vim.deepcopy(defaults)
@@ -973,6 +977,14 @@ function M.setup(opts)
   setup_usage()
   create_user_commands()
   set_global_maps()
+
+  -- Panel persistence (enabled by default)
+  if config.panel_persistence ~= false then
+    local persist_opts = type(config.panel_persistence) == "table"
+      and config.panel_persistence
+      or {}
+    pcall(require("vscode_productivity.persistence").setup, persist_opts)
+  end
 
   local group = vim.api.nvim_create_augroup("vscode_productivity_lsp", { clear = true })
   vim.api.nvim_create_autocmd("LspAttach", {
