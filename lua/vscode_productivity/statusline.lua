@@ -276,7 +276,7 @@ local function default_right_entries(icons, actions)
       callback = function()
         local ok, dapui = pcall(require, "dapui")
         if ok then
-          dapui.toggle()
+          dapui.toggle({})
         elseif pcall(require, "dap") then
           vim.notify("[Debug] nvim-dap-ui not installed. Use :Lazy install nvim-dap-ui", vim.log.levels.INFO)
         else
