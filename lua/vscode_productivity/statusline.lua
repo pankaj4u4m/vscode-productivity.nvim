@@ -55,6 +55,8 @@ local function terminal_id_visible(id)
   return false
 end
 
+
+
 --- Create a clickable statusline button component
 local function vscode_button(config)
   return {
@@ -183,7 +185,7 @@ end
 ---@param actions table Action functions from vscode_productivity
 local function default_right_entries(icons, actions)
   local function open_right_terminal()
-    _G.toggle_term_edge(2, 80, "vertical")
+    require("vscode_productivity").toggle_term_edge(2, 80, "vertical")
   end
 
   return {

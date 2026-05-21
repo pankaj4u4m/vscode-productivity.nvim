@@ -917,6 +917,57 @@ function M.register_dock_entries(entries)
   dock_entries = vim.deepcopy(entries or {})
 end
 
+--- Open a toggleterm terminal pinned to its own edge.
+--- Uses botright vsplit/split to create the terminal at the screen edge,
+--- bypassing toggleterm's default open_split which can pile up terminals.
+---@param id number Terminal ID
+---@param size number Window size
+---@param direction string "vertical" or "horizontal"
+function M.toggle_term_edge(id, size, direction)
+  local ok = pcall(require, "toggleterm")
+  if not ok then return end
+  local terms = require("toggleterm.terminal")
+  local ui = require("toggleterm.ui")
+
+  local term = terms.get(id)
+  if term and term:is_open() then
+    term:close()
+    return
+  end
+
+  term = terms.get_or_create_term(id, nil, direction)
+
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    local ft = vim.bo[buf].filetype
+    if ft ~= "toggleterm" and ft ~= "neo-tree" then
+      vim.api.nvim_set_current_win(win)
+      break
+    end
+  end
+
+  if direction == "vertical" then
+    vim.cmd("botright vsplit | vertical resize " .. size)
+  else
+    vim.cmd("botright split | resize " .. size)
+  end
+
+  local win = vim.api.nvim_get_current_win()
+  term.window = win
+
+  if term.bufnr and vim.api.nvim_buf_is_valid(term.bufnr) then
+    vim.api.nvim_win_set_buf(win, term.bufnr)
+    ui.switch_buf(term.bufnr)
+  else
+    local buf = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_win_set_buf(win, buf)
+    term.bufnr = buf
+    term:__add()
+    term:spawn()
+  end
+  ui.hl_term(term)
+end
+
 function M.setup(opts)
   config = vim.tbl_deep_extend("force", vim.deepcopy(defaults), opts or {})
   setup_usage()

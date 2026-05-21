@@ -229,17 +229,20 @@ return {
 }
 ```
 
-### `lua/polish.lua` (AstroNvim's post-plugin hook)
+### `lua/polish.lua` (AstroNvim's post-plugin hook) — optional
 
-This lives in **your own config**, not in the plugin. It's the glue that makes the VS Code panels work well with AstroNvim:
+> **You don't need this file for the statusline or plugin to work.**
+> The plugin and statusline are fully self-contained.
+> This is just extra quality-of-life — it saves which panels you had open and
+> restores them after restart (like VS Code's window state persistence).
+
+This lives in **your own config**, not in the plugin. The `toggle_term_edge()` helper it uses is already exported by the plugin.
 
 ```lua
 -- Panel state persistence — saves which VS Code panels are open on exit,
--- restores them on next start. Uses a JSON file alongside resession sessions.
+-- restores them on next start. Uses a JSON file alongside sessions.
 local state_file = vim.fn.stdpath("state") .. "/vscode_panels.json"
-
--- Helper: open a toggleterm in a specific position
-function _G.toggle_term_edge(id, size, direction)
+local function open_toggle_terminal(id, size, direction)
   require("toggleterm").toggle(id, size, nil, direction)
 end
 
@@ -279,7 +282,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
       if state.problems then vim.cmd("VSCodeProblems") end
       if state.outline then vim.cmd("VSCodeOutline") end
       if state.terminal_right then
-        _G.toggle_term_edge(2, 80, "vertical")
+        pcall(require("vscode_productivity").toggle_term_edge, 2, 80, "vertical")
       end
     end)
   end,
