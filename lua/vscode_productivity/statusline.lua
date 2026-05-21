@@ -274,14 +274,13 @@ local function default_right_entries(icons, actions)
       icon = icons.debug or "",
       shortcuts = { "<Leader>du" },
       callback = function()
-        local ok, dap = pcall(require, "dap")
+        local ok, dapui = pcall(require, "dapui")
         if ok then
-          dap.toggle_breakpoint()
+          dapui.toggle()
+        elseif pcall(require, "dap") then
+          vim.notify("[Debug] nvim-dap-ui not installed. Use :Lazy install nvim-dap-ui", vim.log.levels.INFO)
         else
-          vim.notify(
-            "[Debug] nvim-dap not installed. Use :Lazy install nvim-dap",
-            vim.log.levels.INFO
-          )
+          vim.notify("[Debug] nvim-dap not installed. Use :Lazy install nvim-dap", vim.log.levels.INFO)
         end
       end,
       is_active = function()
