@@ -36,6 +36,8 @@ The statusline module works with **any [Heirline](https://github.com/rebelot/hei
 
 ## Features
 
+![vscode-productivity statusline](assets/statusline.png)
+
 - **VS Code productivity actions**: quick open, command palette, search in files, search & replace, git, LSP navigation, tasks, etc.
 - **AI agent terminal**: pick and launch any CLI agent ([Claude](https://github.com/anthropics/claude-code), [Copilot](https://github.com/features/copilot), [Codex](https://github.com/openai/codex), [Kilo](https://github.com/kilowhiskey), [Aider](https://github.com/paul-gauthier/aider), [Cline](https://github.com/cline/cline), [OpenCode](https://github.com/sst/opencode), [Agy](https://github.com/antigravity/agy))
 - **Clickable statusline icons** — optional [Heirline](https://github.com/rebelot/heirline.nvim) module with VS Code-style buttons

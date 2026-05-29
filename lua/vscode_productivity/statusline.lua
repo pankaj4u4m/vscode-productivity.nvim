@@ -60,12 +60,12 @@ end
 --- Create a clickable statusline button component
 local function vscode_button(config)
   return {
-    provider = " " .. config.icon .. " ",
+    provider = "  " .. config.icon .. "  ",
     hl = function()
       if config.is_active and config.is_active() then
         return { fg = "#61afef", bold = true }
       end
-      return { fg = "#5c6370" }
+      return { fg = "#abb2bf" }
     end,
     on_click = {
       callback = config.callback,
